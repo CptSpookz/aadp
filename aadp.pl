@@ -6,7 +6,7 @@ pertence(Elem,[Elem|_]).
 pertence(Elem,[_|Cauda]) :- pertence(Elem,Cauda).
 
 % se o estado não tiver sucessor, falha e não procura mais (corte)
-estende( _ ,[]).
+estende(_,[]).
 
 % metodo que faz a extensao do caminho até os nós filhos do estado
 estende([Estado|Caminho],ListaSucessores) :- bagof(
@@ -40,5 +40,15 @@ bp(Caminho,Estado,Solucao) :- s(Estado,Sucessor),
     not(pertence(Sucessor,[Estado|Caminho])),
     bp([Estado|Caminho],Sucessor,Solucao).
 
+% metodo para decidir os estados sucessores
+s(X,Y) :- mover_direita(X,Y); mover_cima(X,Y); recolher_sujeira(X,Y).
 
+% metodo de movimentacao a direita, caso nao haja uma parede, incrementa a posicao Y do agente
+mover_direita([X,Y|Cauda],[X1,Y|Cauda]) :- Y1 is Y + 1, pertence(Y1, [0,1,2,3,4,5,6,7,8,9]), not(parede([X,Y1])).
+
+% metodo de movimentacao para cima, caso haja um elevador na posicao, incrementa a posicao X do agente
+mover_cima([X,Y|Cauda],[X,Y1|Cauda]) :- elevador(Y),X1 is X + 1, pertence(X1,[0,1,2,3,4]). 
+
+% metodo para recolher sujeira, caso o reservatorio do agente não esteja cheio, recolhe 1 sujeira 
+recolher_sujeira([Posicao|[Z|_]],[Posicao|[Z1]]) :- sujeira(Posicao), Z1 is Z + 1, Z < 2.
 
