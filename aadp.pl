@@ -20,7 +20,7 @@ concatena([Cab|Cauda],L2,[Cab|Resultado]) :-concatena(Cauda,L2,Resultado).
 
 % metodo que retira um elemento de uma lista e retorna a lista sem o elemento
 retirar_elemento(Elem,[Elem|Cauda],Cauda).
-retirar_elemento(Elem,[Cabeça|Cauda],[Cabeça|Resultado]) :- retirar_elemento(Elem,Cauda,Resultado).
+retirar_elemento(Elem,[Cabeca|Cauda],[Cabeca|Resultado]) :- retirar_elemento(Elem,Cauda,Resultado).
 
 % solucao por busca em largura (bl)
 solucao_bl(Inicial,Solucao) :- bl([[Inicial]],Solucao).
@@ -45,10 +45,10 @@ bp(Caminho,Estado,Solucao) :- s(Estado,Sucessor),
     bp([Estado|Caminho],Sucessor,Solucao).
 
 % metodo para decidir os estados sucessores
-s(X, Y) :- mover_direita(X,Y); mover_cima(X,Y,Cenario); recolher_sujeira(X,Y,Cenario,Cenario).
+s(X, Y) :- mover_direita(X,Y); mover_cima(X,Y,Cenario); recolher_sujeira(X,Y,cenario(_),Cenario).
 
 % metodo de movimentacao a direita, caso nao haja uma parede, incrementa a posicao Y do agente
-mover_direita([X,Y|Cauda], [X,Y1|Cauda]) :- Y1 is Y + 1, pertence(Y1, [0,1,2,3,4,5,6,7,8,9]), not(parede([X,Y1])).
+mover_direita([X,Y|Cauda], [X,Y1|Cauda]) :- Y1 is Y + 1, pertence(Y1, [0,1,2,3,4,5,6,7,8,9]).
 
 % metodo de movimentacao para cima, caso haja um elevador na posicao, incrementa a posicao X do agente
 mover_cima([X,Y|Cauda], [X1,Y|Cauda], [_|[Elevador]]) :- pertence(Y, Elevador), X1 is X + 1, pertence(X1,[0,1,2,3,4]). 
