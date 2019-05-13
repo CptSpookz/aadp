@@ -43,6 +43,28 @@ bp(Caminho,Estado,[Estado|Caminho]) :- meta(Estado).
 bp(Caminho,Estado,Solucao) :- s(Estado,Sucessor), 
     not(pertence(Sucessor,[Estado|Caminho])),
     bp([Estado|Caminho],Sucessor,Solucao).
+ 
+ 
+ 
+%REGRAS DE SUCESSAO DOS ESTADOS DO ROBÔ
+
+% mover o robo para a direita. X e Y representam respectivamente a
+% coluna e o andar que o robo se encontr
+s([[X,Y], Reservatorio], [[X2,Y], Reservatorio]):- X2 is X + 1,  pertence(X2, [0,1,2,3,4,5,6,7,8,9]).
+
+
+% Mover o robo para a esquerda. X e Y representam respectivamente a
+% coluna e o andar que o robo se encontra
+s([[X,Y], Reservatorio],[[X2,Y], Reservatorio]):- X2 is X-1, pertence(X2, [0,1,2,3,4,5,6,7,8,9]).
+
+% mover o robo para cima. X e Y representam respectivamente a coluna e o
+% andar que o robo se encontra
+s([[X,Y], Reservatorio],[[X,Y2], Reservatorio]):- Y2 is Y+1, pertence(Y2,[0,1,2,3,4]), pertence(X,[2,8]).
+
+% mover o robo para baixo. X e Y representam respectivamente a coluna e o
+% andar que o robo se encontra
+s([[X,Y], Reservatorio],[[X,Y2], Reservatorio]):- Y2 is Y-1, pertence(Y2,[0,1,2,3,4]), pertence(X,[2,8]).
+
 
 % metodo para decidir os estados sucessores
 s(X, Y) :- mover_direita(X,Y); mover_cima(X,Y,Cenario); recolher_sujeira(X,Y,cenario(_),Cenario).
