@@ -44,37 +44,47 @@ bp(Caminho,Estado,Solucao) :- s(Estado,Sucessor),
     not(pertence(Sucessor,[Estado|Caminho])),
     bp([Estado|Caminho],Sucessor,Solucao).
  
- 
+%ESBOCO DA REPRESENTACAO DO ESTADO DO ROBO%
+%estado([cordenadaRobo], reservatorio, [[Lixos]], [Elevadores], [[Paredes]], [Dockstation], contadorLixos).
+%          ^               ^              ^                         ^             ^                ^           
+%         X,Y         numero inteiro    Lista com até             Lista         Coordenada      numero Inteiro
+%                                       3  coordenadas           coordenadas
  
 %REGRAS DE SUCESSAO DOS ESTADOS DO ROBÔ
 
 % mover o robo para a direita. X e Y representam respectivamente a
 % coluna e o andar que o robo se encontr
-s([[X,Y], Reservatorio], [[X2,Y], Reservatorio]):- X2 is X + 1,  pertence(X2, [0,1,2,3,4,5,6,7,8,9]).
+s([[X,Y], Reservatorio,[LCabeca|[LCauda|[LResto]]]],
+  [[X2,Y], Reservatorio, [LCabeca|[LCauda|[LResto]]]]):-
+    X2 is X + 1,
+    pertence(X2, [0,1,2,3,4,5,6,7,8,9]).
 
 
 % Mover o robo para a esquerda. X e Y representam respectivamente a
 % coluna e o andar que o robo se encontra
-s([[X,Y], Reservatorio],[[X2,Y], Reservatorio]):- X2 is X-1, pertence(X2, [0,1,2,3,4,5,6,7,8,9]).
+s([[X,Y], Reservatorio, [LCabeca|[LCauda|[LResto]]]],
+  [[X2,Y], Reservatorio, [LCabeca|[LCauda|[LResto]]]]):-
+    X2 is X-1,
+    pertence(X2, [0,1,2,3,4,5,6,7,8,9]).
 
 % mover o robo para cima. X e Y representam respectivamente a coluna e o
 % andar que o robo se encontra
-s([[X,Y], Reservatorio],[[X,Y2], Reservatorio]):- Y2 is Y+1, pertence(Y2,[0,1,2,3,4]), pertence(X,[2,8]).
+s([[X,Y], Reservatorio,[LCabeca|[LCauda|[LResto]]]],
+  [[X,Y2], Reservatorio,[LCabeca|[LCauda|[LResto]]]]):-
+    Y2 is Y+1,
+    pertence(Y2,[0,1,2,3,4]), pertence(X,[2,8]).
 
 % mover o robo para baixo. X e Y representam respectivamente a coluna e o
 % andar que o robo se encontra
-s([[X,Y], Reservatorio],[[X,Y2], Reservatorio]):- Y2 is Y-1, pertence(Y2,[0,1,2,3,4]), pertence(X,[2,8]).
+s([[X,Y], Reservatorio,[LCabeca|[LCauda|[LResto]]]],
+  [[X,Y2], Reservatorio,[LCabeca|[LCauda|[LResto]]]]):-
+    Y2 is Y-1,
+    pertence(Y2,[0,1,2,3,4]), pertence(X,[2,8]).
 
-
-% metodo para decidir os estados sucessores
-s(X, Y) :- mover_direita(X,Y); mover_cima(X,Y,Cenario); recolher_sujeira(X,Y,cenario(_),Cenario).
-
-% metodo de movimentacao a direita, caso nao haja uma parede, incrementa a posicao Y do agente
-mover_direita([X,Y|Cauda], [X,Y1|Cauda]) :- Y1 is Y + 1, pertence(Y1, [0,1,2,3,4,5,6,7,8,9]).
-
-% metodo de movimentacao para cima, caso haja um elevador na posicao, incrementa a posicao X do agente
-mover_cima([X,Y|Cauda], [X1,Y|Cauda], [_|[Elevador]]) :- pertence(Y, Elevador), X1 is X + 1, pertence(X1,[0,1,2,3,4]). 
-
-% metodo para recolher sujeira, caso o reservatorio do agente não esteja cheio, recolhe 1 sujeira e atualiza o cenario
-recolher_sujeira([Posicao|[Z]], [Posicao|[Z1]], [Sujeiras|_], Cenario) :- pertence(Posicao, Sujeiras), Z1 is Z + 1, Z < 2, retirar_elemento(Posicao, Sujeiras, Cenario).
+%cata lixo
+ s([[X,Y],Reservatorio, [LCabeca|[LCauda|[LResto]]]],[[X,Y], Reservatorio1,
+ [LCabeca|[LCauda|[LResto]]]]):-pertence([X,Y],[LCabeca]) ,
+    Reservatorio1 is Reservatorio + 1; pertence([X,Y],[LCauda]),
+    Reservatorio1 is Reservatorio + 1;
+    pertence([X,Y],[LResto]), Reservatorio1 is Reservatorio + 1.
 
