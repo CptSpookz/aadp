@@ -45,9 +45,10 @@ bp(Caminho,Estado,Solucao) :- s(Estado,Sucessor),
     bp([Estado|Caminho],Sucessor,Solucao).
  
 %ESBOCO DA REPRESENTACAO DO ESTADO DO ROBO%
-%estado([cordenadaRobo], reservatorio, [[Lixos]], [Elevadores], [[Paredes]], [Dockstation], contadorLixos).
-%          ^               ^              ^                         ^             ^                ^           
-%         X,Y         numero inteiro    Lista com até             Lista         Coordenada      numero Inteiro
+%estado([cordenadaRobo], reservatorio, [[Lixos]], [Elevadores], [[Paredes]], [Dockstation], contadorLixos, [Lixeira]).
+%          ^               ^              ^                         ^             ^                ^           ^
+%         X,Y         numero inteiro    Lista com até             Lista         Coordenada      numero      Coordenada
+ %                                                                                              Inteiro
 %                                       3  coordenadas           coordenadas
  
 %REGRAS DE SUCESSAO DOS ESTADOS DO ROBÔ
@@ -92,7 +93,7 @@ s([[X,Y], Reservatorio,[LCabeca|[LCauda|[LResto]]]],
 
 %deixa lixo
 
-S([[X,Y],Reservatorio, [LCabeca|[LCauda|[LResto]]],[Paredes],[X,Y],contadorlixos],
-  [[X,Y],Reservatorio2, [LCabeca|[LCauda|[LResto]]],[Paredes],[X,Y],contadorlixos]) :-
+S([[X,Y],Reservatorio, [LCabeca|[LCauda|[LResto]]],[Paredes],[Dockstation],contadorlixos,[X,Y]],
+  [[X,Y],Reservatorio2, [LCabeca|[LCauda|[LResto]]],[Paredes],[Dockstation],contadorlixos][X,Y]) :-
   pertence(Reservatorio,[1,2]),
   Reservatorio2 is mod(Reservatorio, Reservatorio).
