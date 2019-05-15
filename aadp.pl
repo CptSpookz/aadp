@@ -88,3 +88,11 @@ s([[X,Y], Reservatorio,[LCabeca|[LCauda|[LResto]]]],
     Reservatorio1 is Reservatorio + 1;
     pertence([X,Y],[LResto]), Reservatorio1 is Reservatorio + 1.
 
+
+
+%deixa lixo
+
+S([[X,Y],Reservatorio, [LCabeca|[LCauda|[LResto]]],[Paredes],[X,Y],contadorlixos],
+  [[X,Y],Reservatorio2, [LCabeca|[LCauda|[LResto]]],[Paredes],[X,Y],contadorlixos]) :-
+  pertence(Reservatorio,[1,2]),
+  Reservatorio2 is mod(Reservatorio, Reservatorio).
