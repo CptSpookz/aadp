@@ -63,15 +63,15 @@ s([[X,Y], Reservatorio,[LCabeca|[LCauda|[LResto]]]],
 
 % Mover o robo para a esquerda. X e Y representam respectivamente a
 % coluna e o andar que o robo se encontra
-s([[X,Y], Reservatorio, [LCabeca|[LCauda|[LResto]]]],
-  [[X2,Y], Reservatorio, [LCabeca|[LCauda|[LResto]]]]):-
+s([[X,Y], Reservatorio, [LCabeca|[LCauda|[LResto]]],[X,Y]],
+  [[X2,Y], Reservatorio, [LCabeca|[LCauda|[LResto]]],[X2,Y]]):-
     X2 is X-1,
     pertence(X2, [0,1,2,3,4,5,6,7,8,9]).
 
 % mover o robo para cima. X e Y representam respectivamente a coluna e o
 % andar que o robo se encontra
-s([[X,Y], Reservatorio,[LCabeca|[LCauda|[LResto]]]],
-  [[X,Y2], Reservatorio,[LCabeca|[LCauda|[LResto]]]]):-
+s([[X,Y], Reservatorio, [LCabeca|[LCauda|[LResto]]],[X,Y]],
+  [[X2,Y], Reservatorio, [LCabeca|[LCauda|[LResto]]],[X2,Y]]):-
     Y2 is Y+1,
     pertence(Y2,[0,1,2,3,4]), pertence(X,[2,8]).
 
