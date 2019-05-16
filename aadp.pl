@@ -8,9 +8,8 @@ pertence(Elem,[_|Cauda]) :- pertence(Elem,Cauda).
 % metodo que faz a extensao do caminho até os nós filhos do estado
 % se o estado não tiver sucessor, falha e não procura mais (corte)
 estende(_,[]).
-estende([Estado|Caminho],ListaSucessores) :- bagof(
-    [Sucessor,Estado|Caminho], 
-    (s(Estado,Sucessor), not(pertence(Sucessor,[Estado|Caminho]))), 
+estende([Estado|Caminho],ListaSucessores) :- bagof([Sucessor,Estado|Caminho], 
+    (s(Estado,Sucessor), \+ pertence(Sucessor,[Estado|Caminho])), 
     ListaSucessores),!.
 
 % metodo que concatena duas listas
@@ -41,8 +40,8 @@ bp(Caminho,Estado,[Estado|Caminho]) :- meta(Estado).
 
 % se falha, coloca o no caminho e continua a busca
 bp(Caminho,Estado,Solucao) :- s(Estado,Sucessor), 
-    not(pertence(Sucessor,[Estado|Caminho])),
-    bp([Estado|Caminho],Sucessor,Solucao).
+    \+ pertence(Sucessor, [Estado|Caminho]),
+    bp([Estado|Caminho], Sucessor, Solucao).
  
 
 % ESBOÇO DA REPRESENTAÇAO DO ESTADO DO ROBO
@@ -58,57 +57,48 @@ bp(Caminho,Estado,Solucao) :- s(Estado,Sucessor),
 % REGRAS DE SUCESSÃO DOS ESTADOS DO ROBÔ
 
 % mover o robo para a direita. X e Y representam respectivamente a coluna e o andar que o robo se encontra
-s([[X,Y], Reservatorio], [[X2,Y], Reservatorio]) :- cenario(C),
-	X2 is X + 1, valida([X2,Y], parede, C).
+s([[[X,Y], Reservatorio], C], [[[X2,Y], Reservatorio], C]) :- X2 is X + 1, valida([X2,Y], parede, C).
 
 % mover o robo para a esquerda. X e Y representam respectivamente a coluna e o andar que o robo se encontra
-s([[X,Y], Reservatorio], [[X2,Y], Reservatorio]) :- cenario(C),
-	X2 is X - 1, valida([X2,Y], parede, C).
+s([[[X,Y], Reservatorio], C], [[[X2,Y], Reservatorio], C]) :- X2 is X - 1, valida([X2,Y], parede, C).
 
 % mover o robo para cima. X e Y representam respectivamente a coluna e o andar que o robo se encontra
-s([[X,Y], Reservatorio], [[X2,Y], Reservatorio]) :- cenario(C),
-	valida(X, elevador, C), Y2 is Y + 1.
+s([[[X,Y], Reservatorio], C], [[[X,Y2], Reservatorio], C]) :- valida(X, elevador, C), Y2 is Y + 1.
 
 % mover o robo para baixo. X e Y representam respectivamente a coluna e o andar que o robo se encontra
-s([[X,Y], Reservatorio], [[X,Y2], Reservatorio]) :- cenario(C),
-	valida(X, elevador, C), Y2 is Y - 1.
+s([[[X,Y], Reservatorio], C], [[[X,Y2], Reservatorio], C]) :- valida(X, elevador, C), Y2 is Y - 1.
 
 % Coleta lixo
-s([[X,Y],Reservatorio],[[X,Y], Reservatorio1]) :- cenario(C),
- 	valida([X,Y], sujeira, C), Reservatorio1 is Reservatorio + 1,
- 	valida(Reservatorio1, capacidade, C); 
+s([[[X,Y], Reservatorio], [Lim, Sujeiras, Elev, Par, Dock, Lix, Capacidade]], 
+  [[[X,Y], Reservatorio1], [Lim, Sujeiras1, Elev, Par, Dock, Lix, Capacidade]]) :- 
+        pertence([X,Y], Sujeiras), retirar_elemento([X,Y], Sujeiras, Sujeiras1),
+        Reservatorio1 is Reservatorio + 1, Reservatorio1 =< Capacidade.
 
 % Deixa lixo
-s([[X,Y],Reservatorio], [[X,Y], 0]) :- cenario(C),
-	valida([X,Y], lixeira, C), pertence(Reservatorio,[1,2]).
+s([[[X,Y], Reservatorio], C], [[[X,Y], 0], C]) :- valida([X,Y], lixeira, C), valida(Reservatorio, capacidade, C).
 
 
 % FUNÇÕES DO ROBÔ
 % Regra objetivo do robô, chegar à dock station com nenhuma sujeira no reservatório ou no cenário
-meta([Dockstation, 0]) :- cenario([_, [], _, _, Dockstation|_]).
+meta([[Dockstation, 0], [_, [], _, _, Dockstation|_]]).
 
 
-% Método para checar se uma coordenada é válida
-%
-valida([X,Y], sujeira, [[Xmax,Ymax], Sujeiras|_]) :- integer(X), integer(Y),
-	X > 0, X < Xmax,
-	Y > 0, Y < Ymax,
-	pertence([X,Y], Sujeiras), !.
+% Método para checar se um estado é válido
 
-%
+% checa se o robô está atualmente na mesma coluna que um dos elevadores do cenário, o que torna esta movimentação válida
 valida(Y, elevador, [[_,Ymax], _, Elevadores|_]) :- integer(Y), 
-	Y > 0, Y < Ymax, 
-	pertence(Y, Elevadores), !.
+	Y >= 0, Y =< Ymax, 
+	pertence(Y, Elevadores).
 
-%
+% checa se a posição do robô é a mesma de uma das paredes do cenário, o que torna esta movimentação inválida
 valida([X,Y], parede, [[Xmax,Ymax], _, _, Paredes|_]) :- integer(X), integer(Y),
-	Y > 0, Y < Ymax,
-	X > 0, X < Xmax,
-	not(pertence([X,Y], Paredes)), !.
+	Y >= 0, Y =< Ymax,
+	X >= 0, X =< Xmax,
+	\+ pertence([X,Y], Paredes).
 
-%
-valida(Reservatorio, capacidade, [_, _, _, _, _, _, CapacidadeRobo]) :- integer(Reservatorio),
-	Reservatorio =< CapacidadeRobo, !.
+% checa se o reservatório do robô pode carregar a quantidade atual de sujeira
+valida(Reservatorio, capacidade, [_, _, _, _, _, _, Capacidade]) :- Reservatorio =< Capacidade.
 
-%
+% checa se o robô está na posição da lixeira do cenário, o que torna esta movimentação válida
 valida(Lixeira, lixeira, [_, _, _, _, _, Lixeira|_]).
+
