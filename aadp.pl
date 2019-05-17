@@ -56,39 +56,38 @@ bp(Caminho,Estado,Solucao) :- s(Estado,Sucessor),
  
 % REGRAS DE SUCESSÃO DOS ESTADOS DO ROBÔ
 
-% mover o robo para a direita. X e Y representam respectivamente a coluna e o andar que o robo se encontra
-s([[[X,Y], Reservatorio], C], [[[X2,Y], Reservatorio], C]) :- X2 is X + 1, valida([X2,Y], parede, C).
-
-% mover o robo para a esquerda. X e Y representam respectivamente a coluna e o andar que o robo se encontra
-s([[[X,Y], Reservatorio], C], [[[X2,Y], Reservatorio], C]) :- X2 is X - 1, valida([X2,Y], parede, C).
-
-% mover o robo para cima. X e Y representam respectivamente a coluna e o andar que o robo se encontra
-s([[[X,Y], Reservatorio], C], [[[X,Y2], Reservatorio], C]) :- valida(X, elevador, C), Y2 is Y + 1.
-
-% mover o robo para baixo. X e Y representam respectivamente a coluna e o andar que o robo se encontra
-s([[[X,Y], Reservatorio], C], [[[X,Y2], Reservatorio], C]) :- valida(X, elevador, C), Y2 is Y - 1.
-
-% Coleta lixo
+% coleta lixo
 s([[[X,Y], Reservatorio], [Lim, Sujeiras, Elev, Par, Dock, Lix, Capacidade]], 
   [[[X,Y], Reservatorio1], [Lim, Sujeiras1, Elev, Par, Dock, Lix, Capacidade]]) :- 
         pertence([X,Y], Sujeiras), retirar_elemento([X,Y], Sujeiras, Sujeiras1),
         Reservatorio1 is Reservatorio + 1, Reservatorio1 =< Capacidade.
 
-% Deixa lixo
+% deixa lixo
 s([[[X,Y], Reservatorio], C], [[[X,Y], 0], C]) :- valida([X,Y], lixeira, C), valida(Reservatorio, capacidade, C).
 
+% mover o robo para a direita. X e Y representam respectivamente a coluna e o andar que o robo se encontra
+s([[[X,Y], Reservatorio], C], [[[X1,Y], Reservatorio], C]) :- X1 is X + 1, valida([X1,Y], parede, C).
+
+% mover o robo para a esquerda. X e Y representam respectivamente a coluna e o andar que o robo se encontra
+s([[[X,Y], Reservatorio], C], [[[X2,Y], Reservatorio], C]) :- X2 is X - 1, valida([X2,Y], parede, C).
+
+% mover o robo para cima. X e Y representam respectivamente a coluna e o andar que o robo se encontra
+s([[[X,Y], Reservatorio], C], [[[X,Y1], Reservatorio], C]) :- Y1 is Y + 1, valida([X,Y1], elevador, C).
+
+% mover o robo para baixo. X e Y representam respectivamente a coluna e o andar que o robo se encontra
+s([[[X,Y], Reservatorio], C], [[[X,Y2], Reservatorio], C]) :- Y2 is Y - 1, valida([X,Y2], elevador, C).
 
 % FUNÇÕES DO ROBÔ
 % Regra objetivo do robô, chegar à dock station com nenhuma sujeira no reservatório ou no cenário
-meta([[Dockstation, 0], [_, [], _, _, Dockstation|_]]).
+meta([[[DockX, DockY], 0], [_, [], _, _, [DockX, DockY]|_]]).
 
 
 % Método para checar se um estado é válido
-
 % checa se o robô está atualmente na mesma coluna que um dos elevadores do cenário, o que torna esta movimentação válida
-valida(Y, elevador, [[_,Ymax], _, Elevadores|_]) :- integer(Y), 
-	Y >= 0, Y =< Ymax, 
-	pertence(Y, Elevadores).
+valida([X,Y], elevador, [[Xmax,Ymax], _, Elevadores|_]) :- integer(X), integer(Y),
+    X >= 0, X =< Xmax,
+    Y >= 0, Y =< Ymax, 
+	pertence(X, Elevadores).
 
 % checa se a posição do robô é a mesma de uma das paredes do cenário, o que torna esta movimentação inválida
 valida([X,Y], parede, [[Xmax,Ymax], _, _, Paredes|_]) :- integer(X), integer(Y),
